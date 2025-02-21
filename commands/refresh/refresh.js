@@ -70,13 +70,13 @@ module.exports = {
       });
       await interaction.reply({
         content: "Commands refreshed successfully!",
-        flags: MessageFlags.EPHEMERAL,
+        flags: MessageFlags.Ephemeral,
       });
     } catch (error) {
       console.error(error);
       await interaction.reply({
         content: "Error while refreshing commands!",
-        flags: MessageFlags.EPHEMERAL,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },

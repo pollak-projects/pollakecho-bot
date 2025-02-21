@@ -20,13 +20,13 @@ module.exports = {
 
       await interaction.reply({
         content: `Eredmény: ${JSON.stringify(data)}`,
-        flags: MessageFlags.EPHEMERAL,
+        flags: MessageFlags.Ephemeral,
       });
     } catch (error) {
       console.error(error);
       await interaction.reply({
         content: "Hiba történt a kérés során.",
-        flags: MessageFlags.EPHEMERAL,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },
