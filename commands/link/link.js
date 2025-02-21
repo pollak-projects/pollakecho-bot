@@ -2,7 +2,7 @@ const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("om")
+    .setName("link")
     .setDescription("Kapcsold össze a Discord fiókodat a Pollákos fiókoddal")
     .addStringOption((option) =>
       option.setName("omid").setDescription("Az OM azonosító").setRequired(true)
