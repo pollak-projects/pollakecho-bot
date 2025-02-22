@@ -35,7 +35,7 @@ module.exports = {
         }),
       });
       if (!response.ok) {
-        throw new Error(`Hiba történt: ${response.status}`);
+        throw new Error(`Hiba történt: ${response.message}`);
       }
       const data = await response.json();
 
