@@ -1,6 +1,4 @@
-/*list top 10 users with most points in a selected channel, the users are get from the backend https://api-echo.pollak.info/discord/top*/
 const { SlashCommandBuilder } = require("discord.js");
-const fetch = require("node-fetch");
 const { MessageEmbed } = require("discord.js");
 
 module.exports = {
