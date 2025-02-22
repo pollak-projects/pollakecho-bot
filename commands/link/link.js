@@ -37,7 +37,7 @@ module.exports = {
       if (!response.ok) {
         throw new Error(`Hiba történt: ${response.status}`);
       }
-      const data = await response.json();
+      const data = await response.text();
 
       await interaction.reply({
         content: `Eredmény: ${data}`,
