@@ -46,7 +46,7 @@ module.exports = {
     } catch (error) {
       console.error(error);
       await interaction.reply({
-        content: "Hiba történt a kérés során.",
+        content: "Hiba történt a kérés során." + error,
         flags: MessageFlags.Ephemeral,
       });
     }
