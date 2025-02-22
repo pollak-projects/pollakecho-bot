@@ -32,8 +32,8 @@ module.exports = {
 
       data.forEach((user, index) => {
         embed.addFields({
-          name: `#${index + 1} ${user.name}`,
-          value: `Pontszám: ${user.point}\nDiscord ID: <@${user.discordId}>`,
+          name: `#${index + 1} ${user.name} <@${user.discordId}>`,
+          value: `Pontszám: ${user.point}`,
         });
       });
 
