@@ -37,10 +37,10 @@ module.exports = {
       if (!response.ok) {
         throw new Error(`Hiba történt: ${response.status}`);
       }
-      const data = await response.text();
+      const data = await response.json();
 
       await interaction.reply({
-        content: `Eredmény: ${data}`,
+        content: `Eredmény: ${data.message}`,
         flags: MessageFlags.Ephemeral,
       });
     } catch (error) {
