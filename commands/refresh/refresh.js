@@ -22,7 +22,7 @@ module.exports = {
     if (!interaction.memberPermissions?.has("ADMINISTRATOR")) {
       return interaction.reply({
         content: "You do not have permission to use this command.",
-        flags: MessageFlags.EPHEMERAL,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
