@@ -21,10 +21,19 @@ module.exports = {
       return;
     }
 
-    const apiUrl = `https://api-echo.pollak.info/om/${omId}`;
+    const apiUrl = `https://api-echo.pollak.info/discord/om`;
 
     try {
-      const response = await fetch(apiUrl);
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          discordId: interaction.user.id,
+          om: omId,
+        }),
+      });
       if (!response.ok) {
         throw new Error(`Hiba történt: ${response.status}`);
       }
