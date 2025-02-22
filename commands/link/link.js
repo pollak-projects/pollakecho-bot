@@ -40,7 +40,7 @@ module.exports = {
       const data = await response.json();
 
       await interaction.reply({
-        content: `Eredmény: ${data}`,
+        content: `Eredmény: ${data.message}`,
         flags: MessageFlags.Ephemeral,
       });
     } catch (error) {
