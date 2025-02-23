@@ -41,9 +41,10 @@ module.exports = {
         });
       });
 
+      await interaction.send("<@&1336623937177653278>");
       await interaction.client.channels.cache
         .get(channel.id)
-        .send("<@&1336623937177653278>", {
+        .send({
           embeds: [embed],
         })
         .then((msg) => {
