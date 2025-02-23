@@ -26,7 +26,7 @@ module.exports = {
       }
       const data = await response.json();
       const embed = new EmbedBuilder()
-        .setTitle(`Top 10 felhasználó a(z) ${channel.name} csatornán`)
+        .setTitle(`Top 10 diák a tanévben`)
         .setColor("#0099ff")
         .setTimestamp();
 
