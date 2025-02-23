@@ -40,7 +40,9 @@ module.exports = {
         });
       });
 
-      await interaction.reply({ embeds: [embed] });
+      await interaction.client.channels.cache.get(channel.id).send({
+        embeds: [embed.build()],
+      });
     } catch (error) {
       console.error(error);
       await interaction.reply(
