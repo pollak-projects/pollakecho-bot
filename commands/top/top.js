@@ -41,7 +41,7 @@ module.exports = {
       });
 
       await interaction.client.channels.cache.get(channel.id).send({
-        embeds: [embed.build()],
+        embeds: [embed],
       });
     } catch (error) {
       console.error(error);
