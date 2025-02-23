@@ -41,10 +41,11 @@ module.exports = {
         });
       });
 
-      await interaction.client.channels.cache.get(channel.id).send({
-        message: "<@1336623937177653278>",
-        embeds: [embed],
-      });
+      await interaction.client.channels.cache
+        .get(channel.id)
+        .send("<@1336623937177653278>", {
+          embeds: [embed],
+        });
       await interaction.reply({
         content: "A legtöbb ponttal rendelkező felhasználók listája elküldve.",
         ephemeral: true,
