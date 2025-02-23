@@ -43,13 +43,9 @@ module.exports = {
 
       await interaction.client.channels.cache
         .get(channel.id)
-        .send(
-          "<@&1336623937177653278>"
-          /*
-          {
+        .send("<@&1336623937177653278>", {
           embeds: [embed],
-        }*/
-        )
+        })
         .then((msg) => {
           msg.react("👍");
           msg.react("👎");
