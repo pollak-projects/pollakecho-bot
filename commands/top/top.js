@@ -26,7 +26,9 @@ module.exports = {
       }
       const data = await response.json();
       const embed = new EmbedBuilder()
-        .setTitle(`Top 10 diák a tanévben`)
+        .setTitle(
+          `A legtöbb ponttal rendelkező diákok listája dátum: ${new Date().toLocaleDateString()}`
+        )
         .setColor("#0099ff")
         .setTimestamp();
 
@@ -34,9 +36,8 @@ module.exports = {
         embed.addFields({
           name: `#${index + 1} ${user.name}`,
           value:
-            `Pontszám: ${user.point}\n` + user.discordId !== ""
-              ? ` <@${user.discordId}>`
-              : "",
+            `Pontszám: ${user.point}\n` +
+            (user.discordId !== "" ? `<@${user.discordId}>` : ""),
         });
       });
 
@@ -44,7 +45,7 @@ module.exports = {
         embeds: [embed],
       });
       await interaction.reply({
-        content: `A top 10 diák a tanévben elküldve a(z) ${channel} csatornára`,
+        content: "A legtöbb ponttal rendelkező felhasználók listája elküldve.",
         ephemeral: true,
       });
     } catch (error) {
