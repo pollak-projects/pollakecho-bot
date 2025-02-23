@@ -43,6 +43,10 @@ module.exports = {
       await interaction.client.channels.cache.get(channel.id).send({
         embeds: [embed],
       });
+      await interaction.reply({
+        content: `A top 10 diák a tanévben elküldve a(z) ${channel} csatornára`,
+        ephemeral: true,
+      });
     } catch (error) {
       console.error(error);
       await interaction.reply(
