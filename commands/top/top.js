@@ -27,7 +27,7 @@ module.exports = {
       const data = await response.json();
       const embed = new EmbedBuilder()
         .setTitle(
-          `A legtöbb ponttal rendelkező diákok listája dátum: ${new Date().toLocaleDateString()}`
+          `${new Date().toLocaleDateString()} - A legtöbb ponttal rendelkező diákok listája`
         )
         .setColor("#0099ff")
         .setTimestamp();
