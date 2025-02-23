@@ -43,16 +43,16 @@ module.exports = {
 
       await interaction.client.channels.cache
         .get(channel.id)
-        .send("<@&1336623937177653278>");
-      await interaction.client.channels.cache
-        .get(channel.id)
-        .send({
-          embeds: [embed],
-        })
+        .send("<@&1343254428698021888>");
+      await interaction.client.channels.cache.get(channel.id).send({
+        embeds: [embed],
+      });
+      /*
         .then((msg) => {
           msg.react("👍");
           msg.react("👎");
         });
+        */
       await interaction.reply({
         content: "A legtöbb ponttal rendelkező felhasználók listája elküldve.",
         ephemeral: true,
