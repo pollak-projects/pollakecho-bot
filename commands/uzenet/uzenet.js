@@ -39,7 +39,7 @@ module.exports = {
         .setTitle(
           `${teacher}`
         )
-        .setColor("#0099ff")
+        .setColor("#9003fc")
         .setDescription(message)
         .setTimestamp();
 
