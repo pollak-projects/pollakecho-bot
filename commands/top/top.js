@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 const { EmbedBuilder } = require("discord.js");
 
 module.exports = {
@@ -29,7 +29,7 @@ module.exports = {
         .setTitle(
           `${new Date().toLocaleDateString()} - A legtöbb ponttal rendelkező diákok listája`
         )
-        .setColor("#0099ff")
+        .setColor("#9003fc")
         .setTimestamp();
 
       data.forEach((user, index) => {
@@ -55,7 +55,7 @@ module.exports = {
         */
       await interaction.reply({
         content: "A legtöbb ponttal rendelkező felhasználók listája elküldve.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     } catch (error) {
       console.error(error);
