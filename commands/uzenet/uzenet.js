@@ -40,18 +40,16 @@ module.exports = {
           `${teacher}`
         )
         .setColor("#0099ff")
+        .setDescription(message)
         .setTimestamp();
 
-        embed.addFields({
-            name: `${message}`,
-        });
-
+  
         await interaction.client.channels.cache.get(channel.id).send({
         embeds: [embed],
       });
 
       await interaction.reply({
-        content: "A legtöbb ponttal rendelkező felhasználók listája elküldve.",
+        content: "A tanár üzenete elküldve.",
         ephemeral: true,
       });
     },
