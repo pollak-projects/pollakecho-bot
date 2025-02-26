@@ -34,11 +34,13 @@ module.exports = {
     const channel = interaction.options.getChannel("csatorna");
     const teacher = interaction.options.getString("oktato");
     const message = interaction.options.getString("uzenet");
+    const imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/4/4d/Cat_November_2010-1a.jpg';
 
     const embed = new EmbedBuilder()
       .setTitle(`${teacher}`)
       .setColor("#9003fc")
       .setDescription(message)
+      .setImage(imageUrl)
       .setTimestamp();
 
     await interaction.client.channels.cache.get(channel.id).send({
