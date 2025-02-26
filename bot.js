@@ -12,9 +12,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const app = express();
 const port = 3001;
 
-
 //Szia
-
 
 app.use(express.json());
 
@@ -100,6 +98,7 @@ app.post("/bot/message", async (req, res) => {
 });
 
 app.listen(port, () => {
+  console.log(`TOKEN: ${process.env.TOKEN}`);
   console.log(`API server running on http://localhost:${port}`);
 });
 
