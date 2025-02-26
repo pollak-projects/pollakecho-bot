@@ -12,6 +12,10 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const app = express();
 const port = 3001;
 
+
+//Szia
+
+
 app.use(express.json());
 
 client.once(Events.ClientReady, (readyClient) => {
