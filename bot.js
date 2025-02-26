@@ -98,7 +98,6 @@ app.post("/bot/message", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`TOKEN: ${process.env.TOKEN}`);
   console.log(`API server running on http://localhost:${port}`);
 });
 
