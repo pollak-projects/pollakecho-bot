@@ -15,6 +15,7 @@ module.exports = {
         )
         .setRequired(true)
     ),
+
   execute: async (interaction) => {
     const channel = interaction.options.getChannel("channel");
     const apiUrl = `https://api-echo.pollak.info/discord/top`;
