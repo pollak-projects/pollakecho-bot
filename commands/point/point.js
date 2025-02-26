@@ -23,9 +23,11 @@ module.exports = {
         const apiUrl = `https://api-echo.pollak.info/discord/point`;
 
         try {
-            const member = await interaction.guild.members.fetch(authorId);
-            if (!member.roles.cache.has("1336623937177653278")) {
-                throw new Error("Nincs jogosultságod a parancs használatához");
+            if (!interaction.memberPermissions?.has("ADMINISTRATOR")) {
+                await interaction.reply({
+                    content: "Nincs jogosultságod a parancs használatához",
+                    flags: MessageFlags.Ephemeral
+                });
             }
 
             const response = await fetch(apiUrl, {
