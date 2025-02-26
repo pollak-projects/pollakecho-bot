@@ -23,11 +23,12 @@ module.exports = {
         const apiUrl = `https://api-echo.pollak.info/discord/point`;
 
         try {
-            if (!interaction.memberPermissions?.has("ADMINISTRATOR")) {
+            if (!interaction.memberPermissions?.has("ADMINISTRATOR") || !interaction.memberPermissions?.has("1336623937177653278")) {
                 await interaction.reply({
                     content: "Nincs jogosultságod a parancs használatához",
-                    flags: MessageFlags.Ephemeral
+                    flags: MessageFlags.Ephemeral,
                 });
+            return;
             }
 
             const response = await fetch(apiUrl, {
