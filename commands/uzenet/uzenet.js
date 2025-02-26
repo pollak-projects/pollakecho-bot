@@ -28,13 +28,20 @@ module.exports = {
           "A felhasználó megadja az üzenetet, amelyet a tanár a diákoknak küld"
         )
         .setRequired(true)
+    ).addStringOption((option) =>
+      option
+        .setName("kep")
+        .setDescription(
+          "A felhasználó megadja a képet, amelyet a tanár az üzenetéhez csatol (link)"
+        )
+        .setRequired(false)
     ),
 
   execute: async (interaction) => {
     const channel = interaction.options.getChannel("csatorna");
     const teacher = interaction.options.getString("oktato");
     const message = interaction.options.getString("uzenet");
-    const imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/4/4d/Cat_November_2010-1a.jpg';
+    const imageUrl = interaction.options.getString("kep");
 
     const embed = new EmbedBuilder()
       .setTitle(`${teacher}`)
