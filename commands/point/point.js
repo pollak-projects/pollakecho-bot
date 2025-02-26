@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 
 module.exports = {
-    date : new SlashCommandBuilder()
+    data : new SlashCommandBuilder()
     .setName("point")
     .setDescription("Az Admin pontokat adhat a diákoknak")
     .addUserOption(option =>
