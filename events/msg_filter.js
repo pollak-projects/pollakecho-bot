@@ -1,5 +1,6 @@
 const { Events } = require("discord.js");
 const config = require("../config.json");
+const { EmbedBuilder } = require("discord.js");
 
 module.exports = {
   name: Events.MessageCreate,
@@ -50,21 +51,20 @@ module.exports = {
 
       const logChannel = message.guild.channels.cache.get(config.logChannelId);
       if (logChannel?.isTextBased()) {
-        logChannel
-          .send({
-            embeds: [
-              {
-                title: "Message Violation Detected",
-                description: `
+        const embed = new EmbedBuilder()
+          .setTitle("Message Violation Detected")
+          .setDescription(
+            `
                             **User:** ${message.author.tag}
                             **Channel:** <#${message.channel.id}>
                             **Content:** \`${message.content}\`
-                        `,
-                color: "#ff0000",
-              },
-            ],
-          })
-          .catch(console.error);
+                        `
+          )
+          .setColor("#ff0000")
+          .setTimestamp();
+        logChannel.send({
+          embeds: [embed],
+        });
       }
     } else {
       console.log("[FILTER] Message passed - no bad words");
