@@ -4,17 +4,34 @@ const config = require("../config.json");
 module.exports = {
   name: Events.MessageCreate,
   execute(message) {
-    if (message.guild?.id !== process.env.GUILD_ID) return;
+    console.log("[DEBUG] Processing message:", {
+      author: message.author.tag,
+      content: message.content,
+      guildId: message.guild?.id,
+      targetGuildId: process.env.GUILD_ID,
+    });
+    if (message.guild?.id !== process.env.GUILD_ID) {
+      console.log("[FILTER] Message skipped - wrong server");
+      return;
+    }
 
-    if (message.author.bot) return;
+    if (message.author.bot) {
+      console.log("[FILTER] Message skipped - bot");
+      return;
+    }
 
     const messageContent = message.content.toLowerCase();
-
-    const hasBadWord = config.badWords.some((badWord) =>
-      messageContent.includes(badWord.toLowerCase())
-    );
-
+    console.log("[DEBUG] Checking against bad words:", config.badWords);
+    const hasBadWord = config.badWords.some((badWord) => {
+      const matches = messageContent.includes(badWord.toLowerCase());
+      console.log(
+        `[DEBUG] Checking "${badWord}" - ${matches ? "MATCHED" : "no match"}`
+      );
+      return matches;
+    });
     if (hasBadWord) {
+      console.log("[ACTION] Bad word detected - taking action");
+
       if (config.deleteMessages) {
         message.reply(
           "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz.",
@@ -22,7 +39,9 @@ module.exports = {
             ephemeral: true,
           }
         );
-        message.delete().catch(console.error);
+        message.delete().catch((error) => {
+          console.error("Failed to delete message:", error);
+        });
       }
 
       const logChannel = message.guild.channels.cache.get(config.logChannelId);
@@ -43,6 +62,8 @@ module.exports = {
           })
           .catch(console.error);
       }
+    } else {
+      console.log("[FILTER] Message passed - no bad words");
     }
   },
 };
