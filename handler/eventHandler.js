@@ -12,8 +12,19 @@ for (const file of eventFiles) {
   const filePath = path.join(eventsPath, file);
   const event = require(filePath);
   if (event.once) {
-    client.once(event.name, (...args) => event.execute(...args));
+    console.log(`Registering once event ${event.name}, once`);
+    client
+      .once(event.name, (...args) => event.execute(...args))
+      .catch((error) => {
+        console.error(`Failed to register once event ${event.name}:`, error);
+      });
   } else {
-    client.on(event.name, (...args) => event.execute(...args));
+    console.log(`Registering event ${event.name}, on`);
+
+    client
+      .on(event.name, (...args) => event.execute(...args))
+      .catch((error) => {
+        console.error(`Failed to register event ${event.name}:`, error);
+      });
   }
 }
