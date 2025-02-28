@@ -3,6 +3,7 @@ const config = require("../config.json");
 
 module.exports = {
   name: Events.MessageCreate,
+  once: false,
   execute(message) {
     console.log("[DEBUG] Processing message:", {
       author: message.author.tag,
