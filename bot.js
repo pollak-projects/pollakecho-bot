@@ -7,7 +7,16 @@ const {
 const express = require("express");
 require("dotenv").config();
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.MessageCreate,
+    GatewayIntentBits.MessageUpdate,
+    GatewayIntentBits.MessageDelete,
+  ],
+});
 
 const app = express();
 const port = 3001;
