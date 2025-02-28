@@ -34,16 +34,19 @@ module.exports = {
       console.log("[ACTION] Bad word detected - taking action");
 
       if (config.deleteMessages) {
-        message.reply(
-          "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz.",
-          {
-            ephemeral: true,
-          }
-        );
         message.delete().catch((error) => {
           console.error("Failed to delete message:", error);
         });
       }
+      // Küldjük a választ két külön lépésben
+      message.channel
+        .send({
+          content: "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz.",
+          ephemeral: true,
+        })
+        .catch((error) => {
+          console.error("Failed to send reply:", error);
+        });
 
       const logChannel = message.guild.channels.cache.get(config.logChannelId);
       if (logChannel?.isTextBased()) {
