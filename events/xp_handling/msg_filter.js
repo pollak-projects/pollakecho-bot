@@ -1,16 +1,19 @@
-const { client } = require("../../bot");
+const { Events } = require("discord.js");
 const SwearWords = require("./swear_words.json");
 
-client.on("message", (message) => {
-  const { content } = message;
-  const swearWords = SwearWords.words;
-
-  console.log(content);
-
-  if (swearWords.some((word) => content.includes(word))) {
-    message.delete();
-    message.channel.send(
-      `A(z) ${message.author} által küldött üzenetet töröltem, mert tiltott szavakat tartalmazott.`
-    );
-  }
-});
+module.exports = {
+  name: Events.MessageCreate,
+  once: false,
+  execute: async (message) => {
+    if (message.author.bot) return;
+    if (message.content === "ping") {
+      message.reply("pong");
+    }
+    if (
+      SwearWords.some((word) => message.content.toLowerCase().includes(word))
+    ) {
+      message.delete();
+      message.reply("Nem szabad káromkodni!", { ephemeral: true });
+    }
+  },
+};
