@@ -1,6 +1,18 @@
 const { Events } = require("discord.js");
 const config = require("../config.json");
 const { EmbedBuilder } = require("discord.js");
+const badWords = require("../swear_words.json");
+
+function checkMessageAgainstBadWords(messageContent, badWords) {
+  const matches = badWords.filter((badWord) =>
+    messageContent.includes(badWord.word.toLowerCase())
+  );
+
+  return {
+    hasMatches: matches.length > 0,
+    matches: matches,
+  };
+}
 
 module.exports = {
   name: Events.MessageCreate,
@@ -12,6 +24,7 @@ module.exports = {
       guildId: message.guild?.id,
       targetGuildId: process.env.GUILD_ID,
     });
+
     if (message.guild?.id !== process.env.GUILD_ID) {
       console.log("[FILTER] Message skipped - wrong server");
       return;
@@ -23,51 +36,69 @@ module.exports = {
     }
 
     const messageContent = message.content.toLowerCase();
-    console.log("[DEBUG] Checking against bad words:", config.badWords);
-    const hasBadWord = config.badWords.some((badWord) => {
-      const matches = messageContent.includes(badWord.toLowerCase());
-      console.log(
-        `[DEBUG] Checking "${badWord}" - ${matches ? "MATCHED" : "no match"}`
-      );
-      return matches;
-    });
-    if (hasBadWord) {
-      console.log("[ACTION] Bad word detected - taking action");
+    console.log("[DEBUG] Checking against bad words:", badWords);
 
-      if (config.deleteMessages) {
-        message.delete().catch((error) => {
-          console.error("Failed to delete message:", error);
-        });
-      }
-      // Küldjük a választ két külön lépésben
-      message.channel
-        .send({
-          content: "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz.",
-          ephemeral: true,
-        })
-        .catch((error) => {
-          console.error("Failed to send reply:", error);
-        });
+    const result = checkMessageAgainstBadWords(messageContent, badWords);
 
-      const logChannel = message.guild.channels.cache.get(config.logChannelId);
-      if (logChannel?.isTextBased()) {
-        const embed = new EmbedBuilder()
-          .setTitle("Message Violation Detected")
-          .setDescription(
-            `
-                            **User:** ${message.author.tag}
-                            **Channel:** <#${message.channel.id}>
-                            **Content:** \`${message.content}\`
-                        `
-          )
-          .setColor("#ff0000")
-          .setTimestamp();
-        logChannel.send({
-          embeds: [embed],
-        });
-      }
-    } else {
+    if (!result.hasMatches) {
       console.log("[FILTER] Message passed - no bad words");
+      return;
+    }
+
+    console.log("[ACTION] Bad word detected - taking action");
+
+    if (config.deleteMessages) {
+      message.delete().catch((error) => {
+        console.error("Failed to delete message:", error);
+      });
+    }
+
+    const maxLevel = Math.max(...result.matches.map((match) => match.level));
+    let responseText;
+    switch (maxLevel) {
+      case 5:
+        responseText =
+          "Súlyos szabályszegés észlelve! Az üzenet tartalma elfogadhatatlan.";
+        break;
+      case 4:
+        responseText =
+          "Komoly szabályszegés észlelve! Kérem kerülje ezeknek a kifejezéseknek a használatát.";
+        break;
+      default:
+        responseText =
+          "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz.";
+    }
+
+    message.channel
+      .send({
+        content: responseText,
+        ephemeral: true,
+      })
+      .catch((error) => {
+        console.error("Failed to send reply:", error);
+      });
+
+    const logChannel = message.guild.channels.cache.get(config.logChannelId);
+    if (logChannel?.isTextBased()) {
+      const embed = new EmbedBuilder()
+        .setTitle("Message Violation Detected")
+        .setDescription(
+          `
+                    **User:** ${message.author.tag}
+                    **Channel:** <#${message.channel.id}>
+                    **Content:** \`${message.content}\`
+                    **Severity Level:** ${maxLevel}
+                    **Detected Words:** ${result.matches
+                      .map((m) => m.word)
+                      .join(", ")}
+                `
+        )
+        .setColor("#ff0000")
+        .setTimestamp();
+
+      logChannel.send({
+        embeds: [embed],
+      });
     }
   },
 };
