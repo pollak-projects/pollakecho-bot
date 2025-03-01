@@ -2,6 +2,7 @@ const { Events } = require("discord.js");
 const config = require("../config.json");
 const { EmbedBuilder } = require("discord.js");
 const badWords = require("./swear_words.json");
+const { evaluateMsg, addPoints } = require("../handler/pointHandler");
 
 function checkMessageAgainstBadWords(messageContent, badWords) {
   const matches = badWords.filter((badWord) =>
@@ -36,12 +37,13 @@ module.exports = {
     }
 
     const messageContent = message.content.toLowerCase();
-    console.log("[DEBUG] Checking against bad words:", badWords);
 
     const result = checkMessageAgainstBadWords(messageContent, badWords);
 
     if (!result.hasMatches) {
       console.log("[FILTER] Message passed - no bad words");
+      const point = evaluateMsg(message);
+      addPoints(message.author.id, point);
       return;
     }
 
@@ -78,6 +80,7 @@ module.exports = {
         console.error("Failed to send reply:", error);
       });
 
+    addPoints(message.author.id, maxLevel * -10);
     const logChannel = message.guild.channels.cache.get(config.logChannelId);
     if (logChannel?.isTextBased()) {
       const embed = new EmbedBuilder()
