@@ -1,7 +1,7 @@
 const { Events } = require("discord.js");
 const config = require("../config.json");
 const { EmbedBuilder } = require("discord.js");
-const badWords = require("../swear_words.json");
+const badWords = require("./swear_words.json");
 
 function checkMessageAgainstBadWords(messageContent, badWords) {
   const matches = badWords.filter((badWord) =>
