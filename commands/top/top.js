@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 const { EmbedBuilder } = require("discord.js");
+require("dotenv").config(); // Betöltjük a környezeti változókat
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -20,17 +21,36 @@ module.exports = {
     const channel = interaction.options.getChannel("channel");
     const apiUrl = `https://api-echo.pollak.info/discord/top`;
 
+    // Ellenőrizzük, hogy van-e API kulcs
+    if (!process.env.API_KEY) {
+      await interaction.reply({
+        content: "Hiányzó API kulcs. Ellenőrizd a környezeti változókat!",
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
     try {
+      // Fetch kérés időtúllépéssel
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000); // 10 másodperc időtúllépés
+
       const response = await fetch(apiUrl, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           "x-api-key": process.env.API_KEY,
         },
+        signal: controller.signal,
       });
-      if (response.status !== 200) {
-        throw new Error(`${response.statusText}`);
+
+      clearTimeout(timeout); // Töröljük az időtúllépést, ha megérkezett a válasz
+
+      // Hibakezelés, ha a válasz nem OK
+      if (!response.ok) {
+        throw new Error(`Hiba történt: ${response.statusText}`);
       }
+
       const data = await response.json();
       const embed = new EmbedBuilder()
         .setTitle(
@@ -54,12 +74,7 @@ module.exports = {
       await interaction.client.channels.cache.get(channel.id).send({
         embeds: [embed],
       });
-      /*
-        .then((msg) => {
-          msg.react("👍");
-          msg.react("👎");
-        });
-        */
+
       await interaction.reply({
         content: "A legtöbb ponttal rendelkező felhasználók listája elküldve.",
         flags: MessageFlags.Ephemeral,
