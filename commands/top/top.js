@@ -28,8 +28,8 @@ module.exports = {
           "x-api-key": process.env.API_KEY,
         },
       });
-      if (!response.ok) {
-        throw new Error(`Hiba történt: ${response.statusText}`);
+      if (response.status !== 200) {
+        throw new Error(`${response.statusText}`);
       }
       const data = await response.json();
       const embed = new EmbedBuilder()
