@@ -1,4 +1,8 @@
-const { SlashCommandBuilder, MessageFlags } = require("discord.js");
+const {
+  SlashCommandBuilder,
+  MessageFlags,
+  ChannelType,
+} = require("discord.js");
 const { EmbedBuilder } = require("discord.js");
 require("dotenv").config(); // Betöltjük a környezeti változókat
 
@@ -14,26 +18,25 @@ module.exports = {
         .setDescription(
           "A csatorna, amelyen a felhasználók pontjait meg szeretnéd jeleníteni"
         )
+        .addChannelType(ChannelType.GUILD_TEXT)
         .setRequired(true)
     ),
-
   execute: async (interaction) => {
+    await interaction.deferReply({ ephemeral: true });
+
     const channel = interaction.options.getChannel("channel");
     const apiUrl = `https://api-echo.pollak.info/discord/top`;
 
-    // Ellenőrizzük, hogy van-e API kulcs
     if (!process.env.API_KEY) {
-      await interaction.reply({
+      await interaction.editReply({
         content: "Hiányzó API kulcs. Ellenőrizd a környezeti változókat!",
-        flags: MessageFlags.Ephemeral,
       });
       return;
     }
 
     try {
-      // Fetch kérés időtúllépéssel
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10000); // 10 másodperc időtúllépés
+      const timeout = setTimeout(() => controller.abort(), 10000);
 
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -44,9 +47,8 @@ module.exports = {
         signal: controller.signal,
       });
 
-      clearTimeout(timeout); // Töröljük az időtúllépést, ha megérkezett a válasz
+      clearTimeout(timeout);
 
-      // Hibakezelés, ha a válasz nem OK
       if (!response.ok) {
         throw new Error(`Hiba történt: ${response.statusText}`);
       }
@@ -75,15 +77,13 @@ module.exports = {
         embeds: [embed],
       });
 
-      await interaction.reply({
+      await interaction.editReply({
         content: "A legtöbb ponttal rendelkező felhasználók listája elküldve.",
-        flags: MessageFlags.Ephemeral,
       });
     } catch (error) {
       console.error(error);
-      await interaction.reply(
-        `Hiba történt a kérés során. \n${error.message || error}`,
-        { ephemeral: true }
+      await interaction.editReply(
+        `Hiba történt a kérés során. \n${error.message || error}`
       );
     }
   },
