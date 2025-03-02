@@ -67,7 +67,8 @@ module.exports = {
     } catch (error) {
       console.error(error);
       await interaction.reply(
-        `Hiba történt a kérés során. \n${error.message || error}`
+        `Hiba történt a kérés során. \n${error.message || error}`,
+        { ephemeral: true }
       );
     }
   },
