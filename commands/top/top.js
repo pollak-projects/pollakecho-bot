@@ -22,8 +22,6 @@ module.exports = {
         .setRequired(true)
     ),
   execute: async (interaction) => {
-    await interaction.deferReply({ ephemeral: true });
-
     const channel = interaction.options.getChannel("channel");
     const apiUrl = `https://api-echo.pollak.info/discord/top`;
 
