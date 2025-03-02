@@ -75,12 +75,12 @@ module.exports = {
         embeds: [embed],
       });
 
-      await interaction.editReply({
+      await interaction.reply({
         content: "A legtöbb ponttal rendelkező felhasználók listája elküldve.",
       });
     } catch (error) {
       console.error(error);
-      await interaction.editReply(
+      await interaction.reply(
         `Hiba történt a kérés során. \n${error.message || error}`
       );
     }
