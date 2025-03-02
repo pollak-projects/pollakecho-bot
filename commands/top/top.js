@@ -21,7 +21,13 @@ module.exports = {
     const apiUrl = `https://api-echo.pollak.info/discord/top`;
 
     try {
-      const response = await fetch(apiUrl);
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error(`Hiba történt: ${response.statusText}`);
       }

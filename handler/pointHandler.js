@@ -6,12 +6,13 @@ export async function evaluateMsg(message) {
 export async function addPoints(discordId, points) {
   console.log("Adding points to user", discordId, points);
   const response = await fetch(
-    `https://api-echo.pollak.info/discord/user/${discordId}/points`,
+    //"x-api-key"
+    `https://api-echo.pollak.info/discord/user/points/${discordId}`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.API_KEY}`,
+        "x-api-key": process.env.API_KEY,
       },
       body: JSON.stringify({ points }),
     }
