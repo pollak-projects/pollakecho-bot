@@ -18,7 +18,7 @@ module.exports = {
         .setDescription(
           "A csatorna, amelyen a felhasználók pontjait meg szeretnéd jeleníteni"
         )
-        .addChannelTypes(ChannelType.GUILD_TEXT)
+        .addChannelTypes(ChannelType.GuildText)
         .setRequired(true)
     ),
   execute: async (interaction) => {
