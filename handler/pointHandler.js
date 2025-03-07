@@ -2,14 +2,27 @@ const config = require("../config.json");
 
 async function evaluateMsg(message) {
   console.log("Evaluating message", message.content);
-  const word_count = Array.from(await message.content.trim().split(" ").length);
-  const xp = 0;
+  const splitted_message = Array.from(await message.content.trim().split(" "));
+  const word_count = splitted_message.length;
 
-  switch(word_count){
-    default:
-      xp = 5;
+  const min_xp = config.pointSettings.minimumXP;
+  const plus_xp = config.pointSettings.pluszXP;
+  
+  let xp = min_xp;
+
+  switch(word_count) {
+    case 1:
+      xp + min_xp
+      console.log("Egy szó")
+      break;
+    case 2:
+      xp + min_xp + plus_xp 
+      console.log("Kettő szó")
+      break;
   }
 
+  console.log(xp);
+  console.log(word_count);
   return word_count;
 }
 
