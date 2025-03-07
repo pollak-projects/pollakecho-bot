@@ -1,9 +1,20 @@
-export async function evaluateMsg(message) {
+const config = require("../config.json");
+
+async function evaluateMsg(message) {
   console.log("Evaluating message", message.content);
-  return 1;
+  const word_count = Array.from(await message.content.trim().split(" ").length);
+  const xp = 0;
+
+  switch(word_count){
+    default:
+      xp = 5;
+  }
+
+  return word_count;
 }
 
-export async function addPoints(discordId, points) {
+async function addPoints(discordId, points) {
+  try{
   console.log("Adding points to user", discordId, points);
   const response = await fetch(
     //"x-api-key"
@@ -23,3 +34,9 @@ export async function addPoints(discordId, points) {
   }
   return await response.json();
 }
+catch(error){
+  console.log(error)
+}
+}
+
+module.exports = {evaluateMsg, addPoints}

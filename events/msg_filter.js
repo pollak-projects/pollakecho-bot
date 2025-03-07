@@ -40,7 +40,7 @@ module.exports = {
 
     const result = checkMessageAgainstBadWords(messageContent, badWords);
 
-    if (!result.hasMatches && message.channel.id.includes(config.disabledChanels)) {
+    if (!result.hasMatches && !config.disabledChanels.includes(message.channel.id)) {
       console.log("[FILTER] Message passed - no bad words & correct channel");
       const point = evaluateMsg(message);
       addPoints(message.author.id, point);
