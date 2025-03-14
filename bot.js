@@ -39,6 +39,8 @@ async function fetchChannelsFromBot() {
 
 function buildEmbed(author, content) {
   //check if content has url and or image
+
+  try{
   const url = content.match(/(https?:\/\/[^\s]+)/g);
   const image = content.match(/\.(jpeg|jpg|gif|png)$/) ? content : null;
   const description = content.replace(url, "");
@@ -60,6 +62,10 @@ function buildEmbed(author, content) {
   }
 
   return embed;
+}
+catch(error){
+  console.log(error)
+}
 }
 
 async function sendMessageThroughBot(channelId, author, content, mention) {
@@ -91,6 +97,20 @@ app.get("/bot/channels", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch channels" });
   }
 });
+
+app.get("/bot/roles", async (req, res) => {
+  const guild = client.guilds.cache.get(process.env.GUILD_ID);
+  const roles = guild.roles.cache.map((role) => ({
+    id: role.id,
+    name: role.name,
+  }));
+
+  res.json(roles);
+} );
+
+
+
+
 
 app.post("/bot/message", async (req, res) => {
   const { channel, author, msg, mention } = req.body;
