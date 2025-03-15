@@ -40,7 +40,7 @@ module.exports = {
 
     const result = checkMessageAgainstBadWords(messageContent, badWords);
 
-    if (!result.hasMatches && !config.disabledChanels.includes(message.channel.id)) {
+    if (!result.hasMatches) {
       console.log("[FILTER] Message passed - no bad words & correct channel");
       const point = evaluateMsg(message);
       addPoints(message.author.id, point);
@@ -80,7 +80,10 @@ module.exports = {
         console.error("Failed to send reply:", error);
       });
 
-    addPoints(message.author.id, maxLevel * -10);
+    if (config.disabledChanels.includes(message.channel.id)) {
+      return;
+    }
+
     const logChannel = message.guild.channels.cache.get(config.logChannelId);
     if (logChannel?.isTextBased()) {
       const embed = new EmbedBuilder()
@@ -103,5 +106,6 @@ module.exports = {
         embeds: [embed],
       });
     }
+    addPoints(message.author.id, maxLevel * -10);
   },
 };
