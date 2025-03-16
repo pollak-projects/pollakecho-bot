@@ -1,6 +1,6 @@
 const { Events } = require("discord.js");
 const config = require("../config.json");
-const { EmbedBuilder } = require("discord.js");
+const { EmbedBuilder, MessageFlags } = require("discord.js");
 const badWords = require("./swear_words.json");
 const { evaluateMsg, addPoints } = require("../handler/pointHandler");
 
@@ -74,7 +74,7 @@ module.exports = {
     message.channel
       .send({
         content: responseText,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       })
       .catch((error) => {
         console.error("Failed to send reply:", error);
