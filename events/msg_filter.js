@@ -62,7 +62,7 @@ module.exports = {
         break;
       default:
         responseText =
-          "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz.";
+          "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz...";
     }
     if (config.deleteMessages) {
       message
