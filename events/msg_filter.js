@@ -78,12 +78,11 @@ module.exports = {
         })
         .catch((error) => {
           console.error("Failed to send reply:", error);
-        })
-        .then((msg) => {
-          message.delete().catch((error) => {
-            console.error("Failed to delete message:", error);
-          });
         });
+
+      await message.delete().catch((error) => {
+        console.error("Failed to delete message:", error);
+      });
     }
 
     if (config.disabledChanels.includes(message.channel.id)) {
