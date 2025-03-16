@@ -65,8 +65,8 @@ module.exports = {
           "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz.";
     }
     if (config.deleteMessages) {
-      message.channel
-        .send({
+      message
+        .reply({
           content: responseText,
           flags: MessageFlags.Ephemeral,
         })
