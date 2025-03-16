@@ -84,14 +84,9 @@ module.exports = {
         break;
     }
     if (config.deleteMessages) {
-      await message
-        .reply({
-          content: responseText,
-          flags: MessageFlags.Ephemeral,
-        })
-        .catch((error) => {
-          console.error("Failed to send reply:", error);
-        });
+      await message.author.send(responseText).catch((error) => {
+        console.error("Failed to send reply:", error);
+      });
 
       await message.delete().catch((error) => {
         console.error("Failed to delete message:", error);
