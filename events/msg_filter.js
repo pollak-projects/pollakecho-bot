@@ -18,7 +18,7 @@ function checkMessageAgainstBadWords(messageContent, badWords) {
 module.exports = {
   name: Events.MessageCreate,
   once: false,
-  execute(message) {
+  async execute(message) {
     console.log("[DEBUG] Processing message:", {
       author: message.author.tag,
       content: message.content,
@@ -71,18 +71,19 @@ module.exports = {
         break;
     }
     if (config.deleteMessages) {
-      message
+      await message
         .reply({
           content: responseText,
           flags: MessageFlags.Ephemeral,
         })
         .catch((error) => {
           console.error("Failed to send reply:", error);
+        })
+        .then((msg) => {
+          message.delete().catch((error) => {
+            console.error("Failed to delete message:", error);
+          });
         });
-
-      message.delete().catch((error) => {
-        console.error("Failed to delete message:", error);
-      });
     }
 
     if (config.disabledChanels.includes(message.channel.id)) {
