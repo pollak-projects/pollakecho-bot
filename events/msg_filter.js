@@ -50,19 +50,24 @@ module.exports = {
     console.log("[ACTION] Bad word detected - taking action");
 
     const maxLevel = Math.max(...result.matches.map((match) => match.level));
+
     let responseText;
     switch (maxLevel) {
       case 5:
         responseText =
           "Súlyos szabályszegés észlelve! Az üzenet tartalma elfogadhatatlan.";
+        message.member.ban({ reason: "Tiltott szavak használata" });
         break;
       case 4:
         responseText =
-          "Komoly szabályszegés észlelve! Kérem kerülje ezeknek a kifejezéseknek a használatát.";
+          "Komoly szabályszegés észlelve! Kérem kerülje ezeknek a kifejezéseknek a használatát. Ezért 1 hétre némítva lettél.";
+        message.member.timeout(604800);
         break;
       default:
         responseText =
-          "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz...";
+          "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz... Kérlek ne használd ezeket a kifejezéseket. 1 órára némítva lettél.";
+        message.member.timeout(3600);
+        break;
     }
     if (config.deleteMessages) {
       message
