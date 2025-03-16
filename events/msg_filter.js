@@ -49,12 +49,6 @@ module.exports = {
 
     console.log("[ACTION] Bad word detected - taking action");
 
-    if (config.deleteMessages) {
-      message.delete().catch((error) => {
-        console.error("Failed to delete message:", error);
-      });
-    }
-
     const maxLevel = Math.max(...result.matches.map((match) => match.level));
     let responseText;
     switch (maxLevel) {
@@ -70,15 +64,20 @@ module.exports = {
         responseText =
           "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz.";
     }
+    if (config.deleteMessages) {
+      message.channel
+        .send({
+          content: responseText,
+          flags: MessageFlags.Ephemeral,
+        })
+        .catch((error) => {
+          console.error("Failed to send reply:", error);
+        });
 
-    message.channel
-      .send({
-        content: responseText,
-        flags: MessageFlags.Ephemeral,
-      })
-      .catch((error) => {
-        console.error("Failed to send reply:", error);
+      message.delete().catch((error) => {
+        console.error("Failed to delete message:", error);
       });
+    }
 
     if (config.disabledChanels.includes(message.channel.id)) {
       return;
