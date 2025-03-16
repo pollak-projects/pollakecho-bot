@@ -61,12 +61,13 @@ module.exports = {
       case 4:
         responseText =
           "Komoly szabályszegés észlelve! Kérem kerülje ezeknek a kifejezéseknek a használatát. Ezért 1 hétre némítva lettél.";
-        message.member.timeout(604800);
+        //1 week mute
+        message.member.timeout(60 * 60 * 1000 * 24 * 7);
         break;
       default:
         responseText =
           "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz... Kérlek ne használd ezeket a kifejezéseket. 1 órára némítva lettél.";
-        message.member.timeout(3600);
+        message.member.timeout(60 * 60 * 1000);
         break;
     }
     if (config.deleteMessages) {
