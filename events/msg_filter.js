@@ -15,6 +15,15 @@ function checkMessageAgainstBadWords(messageContent, badWords) {
   };
 }
 
+async function timeoutUser(member, time) {
+  //timeout if user doesnt have x role
+  try {
+    await member.timeout(time);
+  } catch (error) {
+    console.error("Failed to timeout user:", error);
+  }
+}
+
 module.exports = {
   name: Events.MessageCreate,
   once: false,
@@ -56,18 +65,22 @@ module.exports = {
       case 5:
         responseText =
           "Súlyos szabályszegés észlelve! Az üzenet tartalma elfogadhatatlan.";
-        message.member.ban({ reason: "Tiltott szavak használata" });
+        try {
+          message.member.ban({ reason: "Tiltott szavak használata" });
+        } catch (error) {
+          console.error("Failed to ban user:", error);
+        }
         break;
       case 4:
         responseText =
           "Komoly szabályszegés észlelve! Kérem kerülje ezeknek a kifejezéseknek a használatát. Ezért 1 hétre némítva lettél.";
         //1 week mute
-        message.member.timeout(60 * 60 * 1000 * 24 * 7);
+        await timeoutUser(message.member, 60 * 60 * 24 * 7 * 1000);
         break;
       default:
         responseText =
           "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz... Kérlek ne használd ezeket a kifejezéseket. 1 órára némítva lettél.";
-        message.member.timeout(60 * 60 * 1000);
+        await timeoutUser(message.member, 60 * 60 * 1000);
         break;
     }
     if (config.deleteMessages) {
