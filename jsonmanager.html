@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>JSON Word List Manager</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .container {
+        display: grid;
+        gap: 20px;
+      }
+
+      .form-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      input[type="text"] {
+        padding: 8px;
+        width: 200px;
+      }
+
+      select {
+        padding: 8px;
+        width: 100px;
+      }
+
+      button {
+        padding: 8px 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      .word-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .word-item:last-child {
+        border-bottom: none;
+      }
+      .form-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      #searchInput {
+        padding: 8px;
+        width: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Add New Word Form -->
+      <div class="form-group">
+        <input type="text" id="wordInput" placeholder="Enter word" />
+        <select id="levelSelect">
+          <option value="1">Level 1</option>
+          <option value="2">Level 2</option>
+          <option value="3">Level 3</option>
+        </select>
+        <button onclick="addWord()">Add Word</button>
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search words..."
+          onkeyup="filterWords()"
+        />
+        <select id="searchField">
+          <option value="word">Word</option>
+          <option value="level">Level</option>
+        </select>
+      </div>
+
+      <!-- Words List -->
+      <div id="wordsContainer"></div>
+
+      <!-- File Operations -->
+      <div class="form-group">
+        <input type="file" id="jsonFileInput" accept=".json" />
+        <button onclick="loadJSONFile()">Load JSON</button>
+        <button onclick="saveToJSON()">Save JSON</button>
+      </div>
+    </div>
+
+    <script>
+      let words = [];
+
+      // Load JSON file
+
+      function filterWords() {
+        const searchTerm = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const searchField = document.getElementById("searchField").value;
+
+        const filteredWords = words.filter((word) => {
+          if (searchField === "word") {
+            return word.word.toLowerCase().includes(searchTerm);
+          } else {
+            return word.level.toString().includes(searchTerm);
+          }
+        });
+
+        console.log(filteredWords);
+        renderWords(filteredWords);
+      }
+
+      // Modify the existing renderWords function
+      function renderWords(items = words) {
+        const container = document.getElementById("wordsContainer");
+        container.innerHTML = "";
+
+        items.forEach((item, index) => {
+          const div = document.createElement("div");
+          div.className = "word-item";
+          div.innerHTML = `
+            <span>${item.word} (Level ${item.level})</span>
+            <div>
+                <button onclick="modifyWord(${index})">Modify</button>
+                <button onclick="deleteWord(${index})">Delete</button>
+            </div>
+        `;
+          container.appendChild(div);
+        });
+      }
+
+      // Modify the existing loadJSONFile function
+      function loadJSONFile() {
+        const input = document.getElementById("jsonFileInput");
+        const file = input.files[0];
+
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            words = JSON.parse(e.target.result);
+            renderWords();
+            document.getElementById("searchInput").value = "";
+          } catch (error) {
+            alert("Invalid JSON file");
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      // Add this function to clear filters
+      function clearFilter() {
+        document.getElementById("searchInput").value = "";
+        renderWords();
+      }
+
+      function loadJSONFile() {
+        const input = document.getElementById("jsonFileInput");
+        const file = input.files[0];
+
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            words = JSON.parse(e.target.result);
+            renderWords();
+          } catch (error) {
+            alert("Invalid JSON file");
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      // Save to JSON file
+      function saveToJSON() {
+        const jsonContent = JSON.stringify(words);
+        const blob = new Blob([jsonContent], { type: "application/json" });
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "words.json";
+        a.click();
+      }
+
+      // Add new word
+      function addWord() {
+        const wordInput = document.getElementById("wordInput").value;
+        const levelSelect = document.getElementById("levelSelect").value;
+
+        if (!wordInput.trim()) {
+          alert("Please enter a word");
+          return;
+        }
+
+        words.push({
+          word: wordInput,
+          level: parseInt(levelSelect),
+        });
+
+        document.getElementById("wordInput").value = "";
+        renderWords();
+      }
+
+      // Delete word
+      function deleteWord(index) {
+        words.splice(index, 1);
+        renderWords();
+      }
+
+      // Modify word
+      function modifyWord(index) {
+        const wordInput = prompt("Enter new word:", words[index].word);
+        const levelInput = parseInt(
+          prompt("Enter new level (1-3):", words[index].level)
+        );
+
+        if (wordInput !== null && levelInput !== null) {
+          words[index] = {
+            word: wordInput,
+            level: levelInput,
+          };
+          renderWords();
+        }
+      }
+
+      // Render words list
+
+      // Initial render
+      renderWords();
+    </script>
+  </body>
+</html>

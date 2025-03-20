@@ -5,9 +5,10 @@ const badWords = require("./swear_words.json");
 const { evaluateMsg, addPoints } = require("../handler/pointHandler");
 
 function checkMessageAgainstBadWords(messageContent, badWords) {
-  const matches = badWords.filter((badWord) =>
-    messageContent.includes(badWord.word.toLowerCase())
-  );
+  const matches = badWords.filter((word) => {
+    const regex = new RegExp(`\\b${word.word}\\b`, "i");
+    return regex.test(messageContent);
+  });
 
   return {
     hasMatches: matches.length > 0,
