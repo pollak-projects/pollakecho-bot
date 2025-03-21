@@ -25,13 +25,6 @@ module.exports = {
     const channel = interaction.options.getChannel("channel");
     const apiUrl = `https://api-echo.pollak.info/discord/top`;
 
-    if (!process.env.API_KEY) {
-      await interaction.editReply({
-        content: "Hiányzó API kulcs. Ellenőrizd a környezeti változókat!",
-      });
-      return;
-    }
-
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 10000);
