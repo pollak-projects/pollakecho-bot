@@ -44,8 +44,32 @@ module.exports = {
       console.log("StatusText: " + response.statusText);
       console.log("Content: " + response.content);
 
-      if (response.status !== 200) {
-        throw new Error(`Hiba történt: ${response.message}`);
+      switch (response.status) {
+        case 200:
+          await interaction.reply({
+            content: "Sikeresen összekapcsoltad a fiókodat.",
+            flags: MessageFlags.Ephemeral,
+          });
+          break;
+        case 400:
+          await interaction.reply({
+            content: "Az OM azonosító nem megfelelő.",
+            flags: MessageFlags.Ephemeral,
+          });
+          break;
+        case 409:
+          await interaction.reply({
+            content:
+              "A Discord fiókod már össze van kapcsolva egy OM azonosítóval.",
+            flags: MessageFlags.Ephemeral,
+          });
+          break;
+        default:
+          await interaction.reply({
+            content: "Hiba történt a kérés során. ",
+            flags: MessageFlags.Ephemeral,
+          });
+          break;
       }
       const data = await response.json();
 
