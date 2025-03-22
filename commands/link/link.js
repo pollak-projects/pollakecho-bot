@@ -36,6 +36,7 @@ module.exports = {
           om: omId,
         }),
       });
+      const data = await response.json();
 
       switch (response.status) {
         case 200:
@@ -43,6 +44,11 @@ module.exports = {
             content: "Sikeresen összekapcsoltad a fiókodat.",
             flags: MessageFlags.Ephemeral,
           });
+
+          await interaction.guild.members.cache
+            .get(interaction.user.id)
+            .setNickname(data.content.nev);
+
           break;
         case 400:
           await interaction.reply({
@@ -64,7 +70,6 @@ module.exports = {
           });
           break;
       }
-      const data = await response.json();
 
       console.log("URL: " + apiUrl);
 
