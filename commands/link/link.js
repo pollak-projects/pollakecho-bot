@@ -37,13 +37,6 @@ module.exports = {
         }),
       });
 
-      console.log("URL: " + apiUrl);
-      console.log(response);
-
-      console.log("Status: " + response.status);
-      console.log("StatusText: " + response.statusText);
-      console.log("Content: " + response.content);
-
       switch (response.status) {
         case 200:
           await interaction.reply({
@@ -73,7 +66,12 @@ module.exports = {
       }
       const data = await response.json();
 
-      await interaction.author.send({ content: data.message });
+      console.log("URL: " + apiUrl);
+
+      console.log("Status: " + response.status);
+      console.log("StatusText: " + response.statusText);
+      console.log("Content: " + response.content);
+      console.log("Data: " + data);
     } catch (error) {
       console.error(error);
       await interaction.reply({
