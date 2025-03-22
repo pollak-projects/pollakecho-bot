@@ -71,7 +71,9 @@ module.exports = {
       console.log("Status: " + response.status);
       console.log("StatusText: " + response.statusText);
       console.log("Content: " + response.content);
-      console.log("Data: " + data);
+      console.log("Data");
+      console.log(data);
+      console.log(data.content);
     } catch (error) {
       console.error(error);
       await interaction.reply({
