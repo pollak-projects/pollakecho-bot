@@ -36,6 +36,13 @@ module.exports = {
           om: omId,
         }),
       });
+
+      console.log("URL: " + apiUrl);
+      console.log(response);
+
+      console.log("Status: " + response.status);
+      console.log("StatusText: " + response.statusText);
+
       if (!response.ok) {
         throw new Error(`Hiba történt: ${response.message}`);
       }
