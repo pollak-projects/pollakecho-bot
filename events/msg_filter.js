@@ -62,29 +62,49 @@ module.exports = {
     const maxLevel = Math.max(...result.matches.map((match) => match.level));
 
     let responseText;
+
+    let deleteMessage = false;
+
     switch (maxLevel) {
       case 5:
         responseText =
-          "Súlyos szabályszegés észlelve! Az üzenet tartalma elfogadhatatlan.";
+          "Súlyos szabályszegés észlelve! Az üzenet tartalma elfogadhatatlan. 500 pontot levontam a pontjaidból és kitiltottalak a szerverről. ";
+        addPoints(message.author.id, -500);
         try {
           message.member.ban({ reason: "Tiltott szavak használata" });
         } catch (error) {
           console.error("Failed to ban user:", error);
         }
+
+        deleteMessage = true;
         break;
       case 4:
         responseText =
-          "Komoly szabályszegés észlelve! Kérem kerülje ezeknek a kifejezéseknek a használatát. Ezért 1 hétre némítva lettél.";
-        //1 week mute
-        await timeoutUser(message.member, 60 * 60 * 24 * 7 * 1000);
+          "Komoly szabályszegés észlelve! Kérem kerülje ezeknek a kifejezéseknek a használatát. Ezért 3 napra némítva lettél. 75 pontot levontam a pontjaidból.";
+        await timeoutUser(message.member, 60 * 60 * 24 * 3 * 1000);
+        addPoints(message.author.id, -75);
+        deleteMessage = true;
+        break;
+      case 3:
+        responseText =
+          "Az ilyen kifejezések használata nem megengedett. Kérem kerülje ezeknek a kifejezéseknek a használatát. Egy órára némítva lettél. 50 pontot levontam a pontjaidból.";
+        await timeoutUser(message.member, 60 * 60 * 1000);
+        addPoints(message.author.id, -50);
+        deleteMessage = true;
+        break;
+      case 2:
+        responseText =
+          "Figyelmeztetés! Kérem kerülje ezeknek a kifejezéseknek a használatát. 10 pontot levontam a pontjaidból.";
+        addPoints(message.author.id, -10);
+        deleteMessage = false;
         break;
       default:
         responseText =
-          "Az üzeneted törölve lett, mert tiltott szavakat tartalmaz... Kérlek ne használd ezeket a kifejezéseket. 1 órára némítva lettél.";
-        await timeoutUser(message.member, 60 * 60 * 1000);
+          "Óvatosan! Az ilyen csúnya szavak használata valakit könnyen megsértethet.";
+        deleteMessage = false;
         break;
     }
-    if (config.deleteMessages) {
+    if (deleteMessage) {
       await message.author.send(responseText).catch((error) => {
         console.error("Failed to send reply:", error);
       });
@@ -92,6 +112,12 @@ module.exports = {
       await message.delete().catch((error) => {
         console.error("Failed to delete message:", error);
       });
+    } else {
+      await message
+        .reply(responseText, { flags: MessageFlags.Ephemeral })
+        .catch((error) => {
+          console.error("Failed to send reply:", error);
+        });
     }
 
     if (config.disabledChanels.includes(message.channel.id)) {
@@ -120,6 +146,5 @@ module.exports = {
         embeds: [embed],
       });
     }
-    addPoints(message.author.id, maxLevel * -10);
   },
 };
