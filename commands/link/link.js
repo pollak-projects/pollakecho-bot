@@ -42,20 +42,18 @@ module.exports = {
 
       console.log("Status: " + response.status);
       console.log("StatusText: " + response.statusText);
+      console.log("Content: " + response.content);
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error(`Hiba történt: ${response.message}`);
       }
       const data = await response.json();
 
-      await interaction.reply({
-        content: `Eredmény: ${data.message}`,
-        flags: MessageFlags.Ephemeral,
-      });
+      await interaction.author.send({ content: data.message });
     } catch (error) {
       console.error(error);
       await interaction.reply({
-        content: "Hiba történt a kérés során. \n" + error.message,
+        content: "Hiba történt a kérés során. ",
         flags: MessageFlags.Ephemeral,
       });
     }
