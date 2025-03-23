@@ -18,21 +18,6 @@ const evfolyamDictionary = {
 };
 
 const giveRoleBasedOnDictionarys = async (interaction, data) => {
-  /*
-  vezeteknev: 'Teszt',
-  keresztnev: 'Elek',
-  "evfolyam": "12",
-     "agazat": {
-        "name": "Elektronika és elektrotechnika - 04 (2020)",
-        "id": "7278f3ab-b9a4-40f2-a794-e51cee8487f9"
-    },
-    "szakma": {
-        "name": "Erősáramú elektrotechnikus - 5 0713 04 04 (2020)",
-        "id": "71b9c9c6-71e0-4bc1-8375-8f586608a869"
-    },
-  */
-
-  /*check if szakma is empty, if not, give role based on szakma, if empty, give role based on agazat. Add the evfolyam also as a role.*/
   const member = interaction.guild.members.cache.get(interaction.user.id);
 
   try {
@@ -106,9 +91,7 @@ module.exports = {
 
           await interaction.guild.members.cache
             .get(interaction.user.id)
-            .setNickname(
-              data.content.vezeteknev + " " + data.content.keresztnev
-            );
+            .setNickname(data.content.vezeteknev + " " + data.content.utonev);
 
           break;
         case 400:
