@@ -35,13 +35,26 @@ const giveRoleBasedOnDictionarys = async (interaction, data) => {
   /*check if szakma is empty, if not, give role based on szakma, if empty, give role based on agazat. Add the evfolyam also as a role.*/
   const member = interaction.guild.members.cache.get(interaction.user.id);
 
-  if (data.szakma) {
-    member.roles.add(szakmaDictionary[data.szakma.id]);
-  } else {
-    member.roles.add(agazatDictionary[data.agazat.id]);
-  }
+  try {
+    if (data.szakma && data.szakma.id && szakmaDictionary[data.szakma.id]) {
+      await member.roles.add(szakmaDictionary[data.szakma.id]);
+    } else if (
+      data.agazat &&
+      data.agazat.id &&
+      agazatDictionary[data.agazat.id]
+    ) {
+      await member.roles.add(agazatDictionary[data.agazat.id]);
+    }
 
-  member.roles.add(evfolyamDictionary[data.evfolyam]);
+    // Convert evfolyam to a number to match dictionary keys
+    const evfolyamNum = parseInt(data.evfolyam, 10);
+    if (evfolyamDictionary[evfolyamNum]) {
+      await member.roles.add(evfolyamDictionary[evfolyamNum]);
+    }
+  } catch (error) {
+    console.error("Error adding roles:", error);
+    // Handle error or rethrow if needed
+  }
 };
 
 module.exports = {
