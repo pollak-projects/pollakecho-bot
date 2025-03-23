@@ -1,6 +1,49 @@
 const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 require("dotenv").config();
 
+const szakmaDictionary = {
+  "71b9c9c6-71e0-4bc1-8375-8f586608a869": "1347466691017183262",
+};
+
+const agazatDictionary = {
+  "7278f3ab-b9a4-40f2-a794-e51cee8487f9": "1347466691017183262",
+};
+
+const evfolyamDictionary = {
+  9: "1336625642585849876",
+  10: "1336625853076865024",
+  11: "1336625881929482321",
+  12: "1336625977073205279",
+  13: "1336625996132126741",
+};
+
+const giveRoleBasedOnDictionarys = async (interaction, data) => {
+  /*
+  vezeteknev: 'Teszt',
+  keresztnev: 'Elek',
+  "evfolyam": "12",
+     "agazat": {
+        "name": "Elektronika és elektrotechnika - 04 (2020)",
+        "id": "7278f3ab-b9a4-40f2-a794-e51cee8487f9"
+    },
+    "szakma": {
+        "name": "Erősáramú elektrotechnikus - 5 0713 04 04 (2020)",
+        "id": "71b9c9c6-71e0-4bc1-8375-8f586608a869"
+    },
+  */
+
+  /*check if szakma is empty, if not, give role based on szakma, if empty, give role based on agazat. Add the evfolyam also as a role.*/
+  const member = interaction.guild.members.cache.get(interaction.user.id);
+
+  if (data.szakma) {
+    member.roles.add(szakmaDictionary[data.szakma.id]);
+  } else {
+    member.roles.add(agazatDictionary[data.agazat.id]);
+  }
+
+  member.roles.add(evfolyamDictionary[data.evfolyam]);
+};
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("om")
@@ -37,6 +80,7 @@ module.exports = {
         }),
       });
       const data = await response.json();
+      console.log(data);
 
       switch (response.status) {
         case 200:
@@ -45,9 +89,13 @@ module.exports = {
             flags: MessageFlags.Ephemeral,
           });
 
+          await giveRoleBasedOnDictionarys(interaction, data.content);
+
           await interaction.guild.members.cache
             .get(interaction.user.id)
-            .setNickname(data.content.nev);
+            .setNickname(
+              data.content.vezeteknev + " " + data.content.keresztnev
+            );
 
           break;
         case 400:
