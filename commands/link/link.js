@@ -95,6 +95,11 @@ module.exports = {
 
           await giveRoleBasedOnDictionarys(interaction, data.content);
 
+          //add 1336623792797257739 role to user
+          await interaction.guild.members.cache
+            .get(interaction.user.id)
+            .roles.add("1336623792797257739");
+
           await interaction.guild.members.cache
             .get(interaction.user.id)
             .setNickname(data.content.vezeteknev + " " + data.content.utonev);
@@ -120,15 +125,6 @@ module.exports = {
           });
           break;
       }
-
-      console.log("URL: " + apiUrl);
-
-      console.log("Status: " + response.status);
-      console.log("StatusText: " + response.statusText);
-      console.log("Content: " + response.content);
-      console.log("Data");
-      console.log(data);
-      console.log(data.content);
     } catch (error) {
       console.error(error);
       await interaction.reply({
