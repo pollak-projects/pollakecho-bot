@@ -95,7 +95,6 @@ module.exports = {
 
           await giveRoleBasedOnDictionarys(interaction, data.content);
 
-          //add 1336623792797257739 role to user
           await interaction.guild.members.cache
             .get(interaction.user.id)
             .roles.add("1336623792797257739");
