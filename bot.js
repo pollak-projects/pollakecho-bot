@@ -1,134 +1,60 @@
-const {
-  Client,
-  Events,
-  GatewayIntentBits,
-  EmbedBuilder,
-} = require("discord.js");
-const express = require("express");
-require("dotenv").config();
+// events/basicRoleAdder.js
+const { Events } = require('discord.js');
 
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMessageReactions,
-  ],
-});
+module.exports = {
+    name: Events.MessageReactionAdd,
+    once: false,
+    execute: async (client, reaction, user) => {
+        // Check if reaction is partial (for uncached messages)
+        if (reaction.partial) {
+            try {
+                await reaction.fetch();
+            } catch (error) {
+                console.error('Error fetching reaction:', error);
+                return;
+            }
+        }
 
-const app = express();
-const port = 3001;
+        // Configuration
+        const CHANNEL_ID = "1024786235618766878";
+        const ROLE_IDS = "1336623792797257739";
+        const EMOJI = "✅"; 
 
-//Szia
+        // Check if the reaction is in the specified channel
+        if (reaction.message.channel.id !== CHANNEL_ID) return;
 
-app.use(express.json());
 
-client.once(Events.ClientReady, (readyClient) => {
-  console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-  require("./handler/commandHandler.js");
-  require("./handler/eventHandler.js");
-});
-
-async function fetchChannelsFromBot() {
-  const guild = client.guilds.cache.get(process.env.GUILD_ID);
-  return guild.channels.cache.map((channel) => ({
-    id: channel.id,
-    name: channel.name,
-    type: channel.type,
-  }));
-}
-
-function buildEmbed(author, content) {
-  //check if content has url and or image
-
-  try{
-  const url = content.match(/(https?:\/\/[^\s]+)/g);
-  const image = content.match(/\.(jpeg|jpg|gif|png)$/) ? content : null;
-  const description = content.replace(url, "");
-
-  const embed = new EmbedBuilder();
-
-  embed.setTitle(author).setColor("#9003fc");
-
-  if (description) {
-    embed.setDescription(description);
-  }
-
-  if (url) {
-    embed.setURL(url[0]);
-  }
-
-  if (image) {
-    embed.setImage(image);
-  }
-
-  return embed;
-}
-catch(error){
-  console.log(error)
-}
-}
-
-async function sendMessageThroughBot(channelId, author, content, mention) {
-  const channel = client.channels.cache.get(channelId);
-  if (!channel) throw new Error("Channel not found");
-
-  try {
-    const embed = buildEmbed(author, content);
-
-    await channel
-      .send({
-        content: mention ? `${mention}` : "",
-      })
-      .then((msg) => {
-        channel.send({
-          embeds: [embed],
+        //DEBUG:
+        console.log("[DEBUG] Processing reaction:", {
+            user: user.tag,
+            emoji: reaction.emoji.name,
+            guildId: reaction.message.guild?.id,
         });
-      });
-  } catch (error) {
-    console.error(error);
-  }
-}
 
-app.get("/bot/channels", async (req, res) => {
-  try {
-    const channels = await fetchChannelsFromBot();
-    res.json(channels);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch channels" });
-  }
-});
+        // Prevent bot from reacting to its own reactions
+        if (user.bot) return;
 
-app.get("/bot/roles", async (req, res) => {
-  const guild = client.guilds.cache.get(process.env.GUILD_ID);
-  const roles = guild.roles.cache.map((role) => ({
-    id: role.id,
-    name: role.name,
-  }));
+        // Check if the reaction matches our target emoji
+        if (reaction.emoji.name !== EMOJI) return;
 
-  res.json(roles);
-} );
+        // Get the guild and role
+        const guild = reaction.message.guild;
+        const role= guild.roles.cache.get(ROLE_IDS);
 
+        if (!role) {
+            console.error(`Role with ID ${ROLE_IDS} not found.`);
+            return;
+        }
 
-
-
-
-app.post("/bot/message", async (req, res) => {
-  const { channel, author, msg, mention } = req.body;
-
-  try {
-    await sendMessageThroughBot(channel, author, msg, mention);
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to send message" });
-  }
-});
-
-app.listen(port, () => {
-  console.log(`API server running on http://localhost:${port}`);
-  console.log(process.env.API_KEY);
-});
-
-client.login(process.env.TOKEN);
-
-module.exports = { client };
+        // Add the role to the user
+        try {
+            await reaction.message.guild.members.cache
+                .get(user.id)
+                .roles.add(role);
+            
+            console.log(`Added ${role.name} to ${user.tag}`);
+        } catch (error) {
+            console.error('Error adding role:', error);
+        }
+    }
+};
