@@ -1,135 +1,178 @@
-const { SlashCommandBuilder, MessageFlags } = require("discord.js");
+const {
+  SlashCommandBuilder,
+  MessageFlags,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Client,
+  Events,
+  GatewayIntentBits,
+  InteractionType,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+} = require("discord.js");
 require("dotenv").config();
 
-const szakmaDictionary = {
-  "eeecd4ab-5a1a-4a1e-a8ef-28408c3df97a": "1353379465622978580",
-  "b1a33d92-c5ce-4f2a-abad-e8a55c3fc849": "1347466557554692096",
-  "71b9c9c6-71e0-4bc1-8375-8f586608a869": "1347466691017183262",
-  "67b1f569-3d26-41b5-8563-75a556d0e2c9": "1347466849184387153",
-  "52879ae6-16a5-4ca9-b8c7-a366f5607000": "1347466755991273523",
-};
+// Import role utilities
+const { giveRoleBasedOnDictionarys } = require("../../utils/roleUtils");
 
-const agazatDictionary = {
-  "7278f3ab-b9a4-40f2-a794-e51cee8487f9": "1347466691017183262",
-  "8f592440-5a10-4eb6-9465-066c2f14815b": "1347466849184387153",
-};
+// Create client with required intents
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMembers,
+  ],
+});
 
-const evfolyamDictionary = {
-  9: "1336625642585849876",
-  10: "1336625853076865024",
-  11: "1336625881929482321",
-  12: "1336625977073205279",
-  13: "1336625996132126741",
-  "1/13": "1336625996132126741",
-};
+// Modal verification system
+client.on(Events.MessageCreate, async (message) => {
+  if (message.author.bot || !message.content.startsWith("/")) return;
 
-const giveRoleBasedOnDictionarys = async (interaction, data) => {
-  const member = interaction.guild.members.cache.get(interaction.user.id);
+  const buttonRow = new ActionRowBuilder();
+  buttonRow.addComponents(
+    new ButtonBuilder()
+      .setCustomId("verification-button")
+      .setLabel("Azonosítás")
+      .setStyle(ButtonStyle.Primary)
+  );
 
-  try {
-    if (data.szakma && data.szakma.id && szakmaDictionary[data.szakma.id]) {
-      await member.roles.add(szakmaDictionary[data.szakma.id]);
-    } else if (
-      data.agazat &&
-      data.agazat.id &&
-      agazatDictionary[data.agazat.id]
-    ) {
-      await member.roles.add(agazatDictionary[data.agazat.id]);
-    }
+  await message.reply({
+    content: "Kattints a gombra az azonosítási folyamat megkezdéséhez",
+    components: [buttonRow],
+  });
+});
 
-    // Convert evfolyam to a number to match dictionary keys
-    const evfolyamNum = parseInt(data.evfolyam, 10);
-    if (evfolyamDictionary[evfolyamNum]) {
-      await member.roles.add(evfolyamDictionary[evfolyamNum]);
-    }
-  } catch (error) {
-    console.error("Error adding roles:", error);
-    // Handle error or rethrow if needed
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isButton()) return;
+
+  if (interaction.customId === "verification-button") {
+    const modal = new ModalBuilder()
+      .setCustomId("verification-modal")
+      .setTitle("Azonosítás");
+
+    const omInput = new TextInputBuilder()
+      .setCustomId("om-input")
+      .setLabel("OM Azonosító")
+      .setStyle(TextInputStyle.Short)
+      .setMinLength(11)
+      .setRequired(true);
+
+    const actionRow = new ActionRowBuilder().addComponents(omInput);
+    modal.addComponents(actionRow);
+
+    await interaction.showModal(modal);
   }
-};
+
+  if (interaction.type === InteractionType.ModalSubmit) {
+    if (interaction.customId === "verification-modal") {
+      const omId = interaction.fields.getTextInputValue("om-input");
+
+      if (omId.length !== 11) {
+        await interaction.reply({
+          content: "Az OM azonosítónak pontosan 11 karakternek kell lennie.",
+          ephemeral: true,
+        });
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          "https://api-echo.pollak.info/discord/om",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-api-key": process.env.API_KEY,
+            },
+            body: JSON.stringify({
+              discordId: interaction.user.id,
+              om: omId,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        switch (response.status) {
+          case 200:
+            await interaction.reply({
+              content: "Sikeresen összekapcsoltad a fiókodat.",
+              ephemeral: true,
+            });
+
+            await giveRoleBasedOnDictionarys(interaction, data.content);
+
+            const member = interaction.guild.members.cache.get(
+              interaction.user.id
+            );
+            await member.roles.add("1336623792797257739");
+
+            const nickname = `${data.content.vezeteknev} ${data.content.utonev}`;
+            await member.setNickname(nickname);
+
+            break;
+          case 400:
+            await interaction.reply({
+              content: "Az OM azonosító nem megfelelő.",
+              ephemeral: true,
+            });
+            break;
+          case 409:
+            await interaction.reply({
+              content:
+                "A Discord fiókod már össze van kapcsolva egy OM azonosítóval.",
+              ephemeral: true,
+            });
+            break;
+          default:
+            await interaction.reply({
+              content: "Hiba történt a kérés során.",
+              ephemeral: true,
+            });
+            break;
+        }
+      } catch (error) {
+        console.error("Verification error:", error);
+        await interaction.reply({
+          content: "Hiba történt a kérés során.",
+          ephemeral: true,
+        });
+      }
+    }
+  }
+});
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("om")
-    .setDescription("Kapcsold össze a Discord fiókodat a Pollákos fiókoddal")
-    .addStringOption((option) =>
+    .setName("create-verification-message")
+    .setDescription("Azonosítási üzenet létrehozása")
+    .addChannelOption((option) =>
       option
-        .setName("omazonosito")
-        .setDescription("Az OM azonosító")
-        .setRequired(true)
+        .setName("channel")
+        .setDescription("A csatorna, ahová az üzenetet küldeni kell")
+        .setRequired(false)
     ),
   execute: async (interaction) => {
-    const omId = interaction.options.getString("omazonosito");
+    const channel =
+      interaction.options.getChannel("channel") || interaction.channel;
 
-    if (omId.length !== 11) {
-      await interaction.reply({
-        content: "Az OM azonosítónak 11 karakternek kell lennie.",
-        flags: MessageFlags.Ephemeral,
-      });
-      return;
-    }
+    const buttonRow = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId("verification-button")
+        .setLabel("Ellenőrzés")
+        .setStyle(ButtonStyle.Primary)
+    );
 
-    const apiUrl = `https://api-echo.pollak.info/discord/om`;
+    await channel.send({
+      content: "Kattints a gombra az azonosítási folyamat megkezdéséhez",
+      components: [buttonRow],
+    });
 
-    try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": process.env.API_KEY,
-        },
-        body: JSON.stringify({
-          discordId: interaction.user.id,
-          om: omId,
-        }),
-      });
-      const data = await response.json();
-      console.log(data);
-
-      switch (response.status) {
-        case 200:
-          await interaction.reply({
-            content: "Sikeresen összekapcsoltad a fiókodat.",
-            flags: MessageFlags.Ephemeral,
-          });
-
-          await giveRoleBasedOnDictionarys(interaction, data.content);
-
-          await interaction.guild.members.cache
-            .get(interaction.user.id)
-            .roles.add("1336623792797257739");
-
-          await interaction.guild.members.cache
-            .get(interaction.user.id)
-            .setNickname(data.content.vezeteknev + " " + data.content.utonev);
-
-          break;
-        case 400:
-          await interaction.reply({
-            content: "Az OM azonosító nem megfelelő.",
-            flags: MessageFlags.Ephemeral,
-          });
-          break;
-        case 409:
-          await interaction.reply({
-            content:
-              "A Discord fiókod már össze van kapcsolva egy OM azonosítóval.",
-            flags: MessageFlags.Ephemeral,
-          });
-          break;
-        default:
-          await interaction.reply({
-            content: "Hiba történt a kérés során. ",
-            flags: MessageFlags.Ephemeral,
-          });
-          break;
-      }
-    } catch (error) {
-      console.error(error);
-      await interaction.reply({
-        content: "Hiba történt a kérés során. ",
-        flags: MessageFlags.Ephemeral,
-      });
-    }
+    await interaction.reply({
+      content: "Az azonosítási üzenet sikeresen létrehozva!",
+      ephemeral: true,
+    });
   },
 };
