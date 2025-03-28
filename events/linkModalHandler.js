@@ -53,6 +53,9 @@ module.exports = {
       }
 
       try {
+        // First acknowledge the modal submission to close it properly
+        await interaction.deferReply({ ephemeral: true });
+
         console.log(
           `OM azonosítás feldolgozása a következő felhasználóhoz: ${interaction.user.tag}`
         );
@@ -74,30 +77,29 @@ module.exports = {
 
         console.log(`API válasz státusz: ${response.status}`);
 
-        if (!response.ok) {
+        // Check for error responses first (non-200 status codes)
+        if (response.status !== 200) {
           const errorText = await response.text();
           console.error(`API hiba: ${errorText}`);
 
           if (response.status === 400) {
-            await interaction.reply({
+            await interaction.editReply({
               content: "Az OM azonosító nem megfelelő.",
-              ephemeral: true,
             });
           } else if (response.status === 409) {
-            await interaction.reply({
+            await interaction.editReply({
               content:
                 "A Discord fiókod már össze van kapcsolva egy OM azonosítóval.",
-              ephemeral: true,
             });
           } else {
-            await interaction.reply({
+            await interaction.editReply({
               content: "Hiba történt a kérés során.",
-              ephemeral: true,
             });
           }
           return;
         }
 
+        // Continue with successful response (status code 200)
         const data = await response.json();
         console.log("API válasz adat:", data);
 
@@ -112,16 +114,22 @@ module.exports = {
         const nickname = `${data.content.vezeteknev} ${data.content.utonev}`;
         await member.setNickname(nickname);
 
-        await interaction.reply({
+        // After all operations complete, update the deferred reply with success message
+        await interaction.editReply({
           content: "Sikeresen összekapcsoltad a fiókodat.",
-          ephemeral: true,
         });
       } catch (error) {
         console.error("Azonosítási hiba:", error);
-        await interaction.reply({
-          content: `Hiba történt a kérés során: ${error.message}`,
-          ephemeral: true,
-        });
+        if (interaction.deferred) {
+          await interaction.editReply({
+            content: `Hiba történt a kérés során: ${error.message}`,
+          });
+        } else {
+          await interaction.reply({
+            content: `Hiba történt a kérés során: ${error.message}`,
+            ephemeral: true,
+          });
+        }
       }
     }
   },
